@@ -1,0 +1,22 @@
+# 依赖和构建产物（太大，不上传）
+node_modules/
+.next/
+standalone/
+dist/
+build/
+*.exe
+suntv-launcher.js
+suntv_launcher.py
+
+# 临时文件
+__pycache__/
+*.log
+.npmrc
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/

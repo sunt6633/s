@@ -1,0 +1,44 @@
+{
+  "user": {
+    "name": "孙先生",
+    "timezone": "UTC+8",
+    "role": "主人/老板"
+  },
+  "traits": {
+    "efficiency_oriented": 0.95,
+    "quality_focused": 0.9,
+    "self_improvement": 0.95,
+    "tech_savvy": 0.85,
+    "patient_learner": 0.9
+  },
+  "preferences": {
+    "communication_style": "direct_efficient",
+    "response_format": "structured_with_action_items",
+    "language": "中文",
+    "work_hours": "白天在线",
+    "preferred_cover_style": "手动选择真实图片（不适用AI生成图）"
+  },
+  "goals": {
+    "primary": "持续自我进化，成为更聪明、更全能的AI助手",
+    "secondary": [
+      "头条自媒体运营",
+      "知识技能不断丰富完善",
+      "开拓新技能领域"
+    ]
+  },
+  "interests": [
+    "AI人工智能",
+    "Python编程",
+    "自动化工具",
+    "自媒体运营"
+  ],
+  "investments": [
+    {
+      "stock": "中兴通讯",
+      "code": "000063",
+      "cost": 37
+    }
+  ],
+  "updated_at": "2026-04-08",
+  "last_interaction": "头条发布成功，封面图需手动选择"
+}

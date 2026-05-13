@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小龙模拟盘 - A股模拟交易</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-inner">
+                <div class="logo">
+                    <span class="logo-icon">🐉</span>
+                    <h1>小龙模拟盘</h1>
+                    <span class="subtitle">A股模拟交易</span>
+                </div>
+                <div class="header-info">
+                    <span id="server-time" class="time-display"></span>
+                    <span id="trading-status" class="status-badge"></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav-bar">
+            <button class="nav-btn active" data-tab="dashboard" onclick="switchTab('dashboard')">
+                <span class="nav-icon">📊</span>总览
+            </button>
+            <button class="nav-btn" data-tab="trade" onclick="switchTab('trade')">
+                <span class="nav-icon">💹</span>交易
+            </button>
+            <button class="nav-btn" data-tab="picker" onclick="switchTab('picker')">
+                <span class="nav-icon">🎯</span>选股
+            </button>
+            <button class="nav-btn" data-tab="history" onclick="switchTab('history')">
+                <span class="nav-icon">📋</span>记录
+            </button>
+        </nav>
+
+        <!-- Dashboard Tab -->
+        <section id="tab-dashboard" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card primary">
+                    <div class="stat-label">总资产</div>
+                    <div class="stat-value" id="total-assets">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">可用资金</div>
+                    <div class="stat-value" id="cash-balance">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">持仓市值</div>
+                    <div class="stat-value" id="market-value">--</div>
+                </div>
+                <div class="stat-card" id="pnl-card">
+                    <div class="stat-label">累计盈亏</div>
+                    <div class="stat-value" id="total-pnl">--</div>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h2>📈 持仓明细</h2>
+            </div>
+            <div class="table-container">
+                <table class="data-table" id="holdings-table">
+                    <thead>
+                        <tr>
+                            <th>代码</th>
+                            <th>名称</th>
+                            <th>持股</th>
+                            <th>成本</th>
+                            <th>现价</th>
+                            <th>市值</th>
+                            <th>盈亏</th>
+                            <th>盈亏%</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="holdings-body">
+                        <tr><td colspan="9" class="empty-row">暂无持仓</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Trade Tab -->
+        <section id="tab-trade" class="tab-content">
+            <div class="trade-container">
+                <div class="trade-panel">
+                    <h2>💹 股票交易</h2>
+                    <div class="form-group">
+                        <label>搜索股票</label>
+                        <input type="text" id="stock-search" placeholder="输入代码或名称搜索..." autocomplete="off">
+                        <div id="search-results" class="search-dropdown"></div>
+                    </div>
+                    <div id="selected-stock" class="selected-stock" style="display:none;">
+                        <span id="selected-name"></span>
+                        <span id="selected-code" class="code-badge"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>价格 (元)</label>
+                        <input type="number" id="trade-price" step="0.01" min="0" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label>数量 (股) <small>最少100股，按100递增</small></label>
+                        <input type="number" id="trade-quantity" step="100" min="100" value="100" placeholder="100">
+                    </div>
+                    <div id="trade-preview" class="trade-preview" style="display:none;">
+                        <div class="preview-row"><span>金额</span><span id="preview-amount">--</span></div>
+                        <div class="preview-row"><span>手续费</span><span id="preview-commission">--</span></div>
+                        <div class="preview-row" id="preview-tax-row" style="display:none;"><span>印花税</span><span id="preview-tax">--</span></div>
+                        <div class="preview-row total"><span>合计</span><span id="preview-total">--</span></div>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-buy" onclick="executeTrade('buy')">买入</button>
+                        <button class="btn btn-sell" onclick="executeTrade('sell')">卖出</button>
+                    </div>
+                    <div id="trade-message" class="trade-message" style="display:none;"></div>
+                </div>
+
+                <div class="trade-info-panel">
+                    <h3>交易规则</h3>
+                    <ul class="rules-list">
+                        <li>🏷️ 最小交易单位：<strong>100股（1手）</strong></li>
+                        <li>📅 T+1规则：当日买入<strong>不可当日卖出</strong></li>
+                        <li>💰 佣金：成交额的<strong>0.025%</strong>（最低5元）</li>
+                        <li>🏛️ 印花税：卖出时<strong>0.05%</strong></li>
+                        <li>⏰ 交易时间：<strong>9:30-11:30, 13:00-15:00</strong></li>
+                        <li>🔒 涨跌停：普通±10%，创业板/科创板±20%</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Picker Tab -->
+        <section id="tab-picker" class="tab-content">
+            <div class="section-header">
+                <h2>🎯 智能选股（沪深300）</h2>
+                <button class="btn btn-primary" onclick="runPicker()">🔍 开始筛选</button>
+            </div>
+            <p class="picker-desc">筛选条件：MA5上穿MA20 · 成交量放大>50% · RSI 30-70</p>
+            <div id="picker-loading" class="loading" style="display:none;">
+                <div class="spinner"></div>
+                <p>正在筛选股票，请稍候...</p>
+            </div>
+            <div id="picker-results">
+                <p class="empty-hint">点击上方按钮开始智能选股</p>
+            </div>
+        </section>
+
+        <!-- History Tab -->
+        <section id="tab-history" class="tab-content">
+            <div class="section-header">
+                <h2>📋 交易记录</h2>
+            </div>
+            <div class="table-container">
+                <table class="data-table" id="trades-table">
+                    <thead>
+                        <tr>
+                            <th>时间</th>
+                            <th>方向</th>
+                            <th>代码</th>
+                            <th>名称</th>
+                            <th>价格</th>
+                            <th>数量</th>
+                            <th>手续费</th>
+                            <th>印花税</th>
+                            <th>金额</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trades-body">
+                        <tr><td colspan="9" class="empty-row">暂无交易记录</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="trades-pagination" class="pagination"></div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>🐉 小龙模拟盘 — 仅供学习，不构成投资建议</p>
+        </footer>
+    </div>
+
+    <div id="toast" class="toast" style="display:none;"></div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
